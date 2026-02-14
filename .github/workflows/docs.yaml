@@ -1,0 +1,48 @@
+name: Build Docs
+
+on:
+  push:
+    branches:
+      - 'main'
+  workflow_dispatch:
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - name: Set up Python 3.12.6
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.12.6
+
+      - name: Install libsodium
+        run: sudo apt-get install -y libsodium23
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r docs/requirements.txt
+
+      - name: Build singlehtml docs
+        run: sphinx-build -b singlehtml docs docs/singlehtml
+
+      - name: Remove static assets
+        run: rm -rf docs/singlehtml/_static
+
+      - name: Check for changes
+        id: check
+        run: |
+          git diff --quiet docs/singlehtml/index.html || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit updated docs
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/singlehtml/index.html
+          git commit -m "docs: auto-update singlehtml documentation"
+          git push
