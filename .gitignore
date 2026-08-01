@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+pytest-live
 
 # C extensions
 *.so
@@ -135,3 +136,7 @@ dmypy.json
 
 # vscode specific
 .vscode
+
+# temp files
+.tmp
+.integration-deps/
