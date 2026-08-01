@@ -6,6 +6,11 @@ on:
       - 'main'
   workflow_dispatch:
 
+# The job commits the rebuilt singlehtml back to the branch, which the default
+# read-only GITHUB_TOKEN cannot do (push fails with a bare 403).
+permissions:
+  contents: write
+
 jobs:
   build-docs:
     runs-on: ubuntu-latest
